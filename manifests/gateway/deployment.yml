@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iot-gateway
+  labels:
+    app: iot-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: iot-gateway
+  template:
+    metadata:
+      labels:
+        app: iot-gateway
+    spec:
+      containers:
+        - name: iot-gateway
+          image: sthanguy/iot-gateway
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000

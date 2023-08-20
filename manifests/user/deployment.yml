@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iot-user
+  labels:
+    app: iot-user
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: iot-user
+  template:
+    metadata:
+      labels:
+        app: iot-user
+    spec:
+      containers:
+        - name: iot-user
+          image: sthanguy/iot-user
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: connection-string
+                  key: connection_string
+                  optional: false
