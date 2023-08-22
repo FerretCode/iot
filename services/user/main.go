@@ -4,12 +4,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/ferretcode/iot/services/user/routes"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/httprate"
 	scrapartydb "github.com/scraparty/scraparty-db"
 )
 
@@ -24,7 +22,6 @@ func main() {
 
 	r.Use(middleware.Logger)
 	r.Use(middleware.RealIP)
-	r.Use(httprate.LimitByIP(50, time.Minute))
 
 	r.Route("/api/user", func(r chi.Router) {
 		r.Post("/create", func(w http.ResponseWriter, r *http.Request) {

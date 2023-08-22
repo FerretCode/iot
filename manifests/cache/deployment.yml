@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iot-cache
+  labels:
+    app: iot-cache
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: iot-cache
+  template:
+    metadata:
+      labels:
+        app: iot-cache
+    spec:
+      containers:
+        - name: iot-cache
+          image: sthanguy/iot-cache
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+        - name: redis
+          image: redis
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 6379

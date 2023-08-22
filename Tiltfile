@@ -34,6 +34,16 @@ docker_build_with_restart('sthanguy/iot-gateway',
 							]
 )
 
+docker_build_with_restart('sthanguy/iot-cache',
+							context='./services/cache',
+							entrypoint='go run main.go',
+							dockerfile='./services/cache/Dockerfile',
+							extra_tag='latest',
+							live_update=[
+								sync('./services/cache', '/home/route'),
+							]
+)
+
 """
 docker_build_with_restart('sthanguy/iot-teams',
 							context='./services/teams',
@@ -48,6 +58,7 @@ docker_build_with_restart('sthanguy/iot-teams',
 
 
 k8s_yaml(['manifests/user/deployment.yml', 'manifests/user/service.yml'])
+k8s_yaml(['manifests/cache/deployment.yml', 'manifests/cache/service.yml'])
 #k8s_yaml(['manifests/teams/deployment.yml', 'manifests/teams/service.yml'])
 #k8s_yaml(['manifests/aggregator/deployment.yml', 'manifests/aggregator/service.yml'])
 k8s_yaml(['manifests/gateway/deployment.yml', 'manifests/gateway/service.yml', 'manifests/gateway/ingress.yml'])

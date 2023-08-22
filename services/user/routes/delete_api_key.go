@@ -32,7 +32,7 @@ func DeleteApiKey(w http.ResponseWriter, r *http.Request, db gorm.DB) error {
 
 	iotUser := IotUser{}
 
-	err = db.First(&iotUser, deleteApiKeyRequest.Username).Error
+	err = db.Where("username = ?", deleteApiKeyRequest.Username).First(&iotUser).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -57,10 +57,29 @@ func DeleteApiKey(w http.ResponseWriter, r *http.Request, db gorm.DB) error {
 	}
 
 	index := 0
+	apiKey := ApiKey{}
 
 	for i, v := range iotUser.ApiKeys {
-		if v.Name == deleteApiKeyRequest.Name { index = i }
+		key := ApiKey{}
+
+		err = db.First(&key, v).Error
+
+		if err != nil {
+			return err
+		}
+
+		if apiKey.Name != "" {
+			index = i
+		}
+		
+		apiKey = key
 	} 
+
+	err = db.Delete(&apiKey).Error
+
+	if err != nil {
+		return err
+	}
 
 	iotUser.ApiKeys = append(
 		iotUser.ApiKeys[:index],

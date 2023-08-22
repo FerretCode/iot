@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -38,7 +39,7 @@ func NewApiKey(w http.ResponseWriter, r *http.Request, db gorm.DB) error {
 
 	iotUser := IotUser{}
 
-	err = db.First(&iotUser, user.Username).Error
+	err = db.Where("username = ?", user.Username).First(&iotUser).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -70,10 +71,20 @@ func NewApiKey(w http.ResponseWriter, r *http.Request, db gorm.DB) error {
 
 	encodedApiKey := base64.StdEncoding.EncodeToString(apiKeyHash[:])
 
-	iotUser.ApiKeys = append(iotUser.ApiKeys, ApiKey{
+	apiKey := ApiKey{
+		Id: uint(uuid.New().ID()),
 		Name: user.Name,
 		Hash: encodedApiKey,
-	})
+		Username: iotUser.Username,
+	}
+
+	err = db.Create(&apiKey).Error
+
+	if err != nil {
+		return err
+	}
+
+	iotUser.ApiKeys = append(iotUser.ApiKeys, apiKey.Name)
 
 	err = db.Save(&iotUser).Error
 

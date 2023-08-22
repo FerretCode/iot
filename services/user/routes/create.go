@@ -4,9 +4,13 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"net/http"
 
+	"github.com/lib/pq"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -16,16 +20,20 @@ type UserRequest struct {
 }
 
 type IotUser struct {
-	Username string `json:"username"`
-	PasswordHash string `json:"password_hash"`
-	ApiKeys []ApiKey `json:"api_keys"`
-	DataPoints []string `json:"data_points"`
-	Teams []string `json:"teams"`
+	gorm.Model
+	Username    string    `json:"username" gorm:"primaryKey"`
+	Id          uint      `json:"id"`
+	PasswordHash string   `json:"password_hash"`
+	ApiKeys     pq.StringArray `json:"api_keys" gorm:"type:text[]"`
+	DataPoints  pq.StringArray  `json:"data_points" gorm:"type:text[]"`
+	Teams       pq.StringArray `json:"teams" gorm:"type:text[]"`
 }
 
 type ApiKey struct {
-	Name string `json:"name"`
-	Hash string `json:"hash"`
+	Id       uint   `json:"id"`
+	Username string `json:"username"`
+	Name     string `json:"name" gorm:"primaryKey"`
+	Hash     string `json:"hash"`
 }
 
 func Create(w http.ResponseWriter, r *http.Request, db gorm.DB) error {	
@@ -47,22 +55,39 @@ func Create(w http.ResponseWriter, r *http.Request, db gorm.DB) error {
 
 	iotUser := IotUser{}
 
-	db.First(&iotUser, userRequest.Username)
+	db.AutoMigrate(&IotUser{}, &ApiKey{})
+
+	err = db.Where("username = ?", userRequest.Username).First(&iotUser).Error
+
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			fmt.Println("failed to get")
+
+			return err	
+		}
+	}
 
 	if iotUser.Username != "" {
-		w.WriteHeader(200)
-		w.Write([]byte("you have been logged in successfully"))
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("this user already exists"))
 
 		return nil
 	}
 
+	iotUser.Id = uint(uuid.New().ID())
 	iotUser.Username = userRequest.Username
 	iotUser.PasswordHash = encoded
-	iotUser.ApiKeys = make([]ApiKey, 0)
+	iotUser.ApiKeys = make([]string, 0)
 	iotUser.DataPoints = make([]string, 0)
 	iotUser.Teams = make([]string, 0)
 
-	db.Create(iotUser)
+	err = db.Create(&iotUser).Error
+
+	if err != nil {
+		fmt.Println("creation error")
+
+		return err
+	}
 
 	w.WriteHeader(200)
 	w.Write([]byte("your account has been created successfully"))
