@@ -28,11 +28,10 @@ type TeamRequest struct {
 
 type IotUser struct {
 	Username string `json:"username"`
+	Teams pq.StringArray `json:"teams" gorm:"type:text[]"`
 }
 
 func Create(w http.ResponseWriter, r *http.Request, db gorm.DB) error {
-	fmt.Println(r.Context().Value("user"))
-
 	user := r.Context().Value("user").(IotUser)
 
 	bytes, err := io.ReadAll(r.Body)
@@ -79,6 +78,27 @@ func Create(w http.ResponseWriter, r *http.Request, db gorm.DB) error {
 	if err != nil {
 		return err
 	}
+
+	for _, v := range teamRequest.InitialUsers {
+		user := IotUser{} 
+
+		err := db.Where("username = ?", v).First(&user).Error 
+
+		if err != nil {
+			return err
+		}
+
+		user.Teams = append(user.Teams, team.Name)
+
+		err = db.Where("username = ?", v).Save(&user).Error
+
+		if err != nil {
+			return err
+		}
+	}
+
+	w.WriteHeader(200)
+	w.Write([]byte("The team has been successfully created."))
 	
 	return nil
 }

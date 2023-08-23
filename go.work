@@ -5,6 +5,4 @@ use (
 	./services/user
 	./services/cache
 	./services/teams
-
-	./middleware
 )

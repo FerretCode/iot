@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/ferretcode/iot/services/user/routes"
+	"github.com/ferretcode/iot/services/teams/routes"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +18,7 @@ func CheckAPIKey(db gorm.DB, proxyHost string, proxyPort string) func(next http.
 
 			req, err := http.NewRequest(
 				"POST",
-				fmt.Sprintf("http://%s:%s/verify", proxyHost, proxyPort),
+				fmt.Sprintf("http://%s:%s/api/cache/verify", proxyHost, proxyPort),
 				nil,
 			)
 
