@@ -1,43 +1,28 @@
 package middleware
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 
 	"github.com/ferretcode/iot/services/user/routes"
 	"gorm.io/gorm"
 )
 
-func CheckAPIKey(db gorm.DB) func(next http.Handler) http.Handler {
+func CheckAPIKey(db gorm.DB, proxyHost string, proxyPort string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			apiKey := r.Header.Get("Authorization")
 
-			proxyHost := os.Getenv("IOT_CACHE_PROXY_SERVICE_HOST")	
-			proxyPort := os.Getenv("IOT_CACHE_PROXY_SERVICE_PORT")	
-
-			body := map[string]string{
-				"api_key": apiKey,
-			}
-
-			stringified, err := json.Marshal(&body)
-
-			if err != nil {
-				HandleError(w, r, err)
-
-				return 
-			}
-
 			req, err := http.NewRequest(
 				"POST",
-				fmt.Sprintf("http://%s:%s/validate", proxyHost, proxyPort),
-				bytes.NewReader(stringified),
+				fmt.Sprintf("http://%s:%s/verify", proxyHost, proxyPort),
+				nil,
 			)
+
+			req.Header.Set("Authorization", apiKey)
 
 			if err != nil {
 				HandleError(w, r, err)
