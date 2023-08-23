@@ -46,6 +46,8 @@ func CheckAPIKey(db gorm.DB, proxyHost string, proxyPort string) func(next http.
 				return
 			}
 
+			fmt.Println(string(bytes))
+
 			user := routes.IotUser{}
 
 			if err := json.Unmarshal(bytes, &user); err != nil {
