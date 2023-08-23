@@ -1,9 +1,11 @@
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
-github.com/ferretcode/iot/middleware v0.0.0-20230823192753-fd422810ea35 h1:rCi2lS00KrrEZ5/ZvjnNKD2LXTkhSGsU8qYqiIDKKzw=
-github.com/ferretcode/iot/middleware v0.0.0-20230823192753-fd422810ea35/go.mod h1:bWhvu0il/w9S8PqzeImDsmfkvg6edRJsYVdIsQAuV1I=
+github.com/ferretcode/iot/middleware v0.0.0-20230823222107-dc0f6444e517 h1:PW77e7zzu2JqTef3O728VMiiyDJwR0SHQqW94qSir/k=
+github.com/ferretcode/iot/middleware v0.0.0-20230823222107-dc0f6444e517/go.mod h1:I5Co4nW3Rndj+vfq8hF3QZaJuPQT6K+XIyv8XVl8zYM=
 github.com/ferretcode/iot/services/user v0.0.0-20230823192753-fd422810ea35 h1:eJPdFxrPXVpLfNjwcafdQlSMzfKnCL3+qOhEC8vPwMs=
 github.com/ferretcode/iot/services/user v0.0.0-20230823192753-fd422810ea35/go.mod h1:/5iE1vBv8fygNhHBCkpeA0aas0SuLaozguk3g0KC/ek=
+github.com/ferretcode/iot/services/user v0.0.0-20230823222107-dc0f6444e517 h1:nyQads5spW7LZR6/DshL2rR3zLeLoWz53qpge6c3VrM=
+github.com/ferretcode/iot/services/user v0.0.0-20230823222107-dc0f6444e517/go.mod h1:/5iE1vBv8fygNhHBCkpeA0aas0SuLaozguk3g0KC/ek=
 github.com/go-chi/chi/v5 v5.0.10 h1:rLz5avzKpjqxrYwXNfmjkrYYXOyLJd37pz53UFHC6vk=
 github.com/go-chi/chi/v5 v5.0.10/go.mod h1:DslCQbL2OYiznFReuXYUmQ2hGd1aDpCnlMNITLSKoi8=
 github.com/google/uuid v1.3.1 h1:KjJaJ9iWZ3jOFZIf1Lqf4laDRCasjl0BCmnEGxkdLb4=

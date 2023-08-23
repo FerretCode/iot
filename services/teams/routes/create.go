@@ -3,6 +3,7 @@ package routes
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -30,6 +31,8 @@ type IotUser struct {
 }
 
 func Create(w http.ResponseWriter, r *http.Request, db gorm.DB) error {
+	fmt.Println(r.Context().Value("user"))
+
 	user := r.Context().Value("user").(IotUser)
 
 	bytes, err := io.ReadAll(r.Body)
@@ -37,6 +40,8 @@ func Create(w http.ResponseWriter, r *http.Request, db gorm.DB) error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Println(string(bytes))
 
 	teamRequest := TeamRequest{}
 

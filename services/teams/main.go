@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	iotMiddleware "github.com/ferretcode/iot/middleware"
+	iotMiddleware "github.com/ferretcode/iot/services/teams/middleware"
 	"github.com/ferretcode/iot/services/teams/routes"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -24,13 +24,14 @@ func main() {
 	
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
-	r.Use(iotMiddleware.CheckAPIKey(
-		db,
-		os.Getenv("IOT_CACHE_SERVICE_HOST"),
-		os.Getenv("IOT_CACHE_SERVICE_PORT"),
-	))
 
 	r.Route("/api/teams", func(r chi.Router) {
+		r.Use(iotMiddleware.CheckAPIKey(
+			db,
+			os.Getenv("IOT_CACHE_SERVICE_HOST"),
+			os.Getenv("IOT_CACHE_SERVICE_PORT_PROXY"),
+		))
+
 		r.Post("/create", func(w http.ResponseWriter, r *http.Request) {
 			err := routes.Create(w, r, db)
 
