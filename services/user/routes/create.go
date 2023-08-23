@@ -55,7 +55,7 @@ func Create(w http.ResponseWriter, r *http.Request, db gorm.DB) error {
 
 	iotUser := IotUser{}
 
-	db.AutoMigrate(&IotUser{}, &ApiKey{})
+	// db.AutoMigrate(&IotUser{}, &ApiKey{})
 
 	err = db.Where("username = ?", userRequest.Username).First(&iotUser).Error
 

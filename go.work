@@ -4,6 +4,7 @@ use (
 	./services/gateway
 	./services/user
 	./services/cache
+	./services/teams
 
 	./middleware
 )

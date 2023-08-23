@@ -32,7 +32,7 @@ type ApiKey struct {
 
 var ErrNotFound = errors.New("the user was not found in the cache")
 
-func Verify(w http.ResponseWriter, r *http.Request, db gorm.DB) error {
+func Verify(w http.ResponseWriter, r *http.Request, db gorm.DB, ctx context.Context) error {
 	apiKey := r.Header.Get("Authorization")
 
 	hash := sha256.Sum256([]byte(apiKey))
@@ -47,8 +47,6 @@ func Verify(w http.ResponseWriter, r *http.Request, db gorm.DB) error {
 		return err
 	}
 
-	ctx := context.Background()
-
 	ip := os.Getenv("IOT_CACHE_SERVICE_HOST")
 	port := os.Getenv("IOT_CACHE_SERVICE_PORT")
 	
@@ -58,7 +56,7 @@ func Verify(w http.ResponseWriter, r *http.Request, db gorm.DB) error {
 		DB: 0,
 	})
 
-	result, err := rdb.Get(ctx, key.Username).Result()
+	result, err := rdb.Get(ctx, key.Hash).Result()
 
 	if err == redis.Nil {
 		user := IotUser{}
@@ -75,7 +73,7 @@ func Verify(w http.ResponseWriter, r *http.Request, db gorm.DB) error {
 			return err
 		}
 
-		err = rdb.Set(ctx, user.Username, string(stringified), 0).Err()
+		err = rdb.Set(ctx, key.Hash, string(stringified), 0).Err()
 
 		if err != nil {
 			return err
