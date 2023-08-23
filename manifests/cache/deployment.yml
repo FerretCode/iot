@@ -20,6 +20,13 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
+          env:
+            - name: CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: connection-string
+                  key: connection_string
+                  optional: false
         - name: redis
           image: redis
           imagePullPolicy: Always

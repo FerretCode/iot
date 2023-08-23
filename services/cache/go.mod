@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/go-chi/chi/v5 v5.0.10
+	github.com/lib/pq v1.10.9
 	github.com/redis/go-redis/v9 v9.1.0
 	github.com/scraparty/scraparty-db v1.0.1
 	gorm.io/gorm v1.25.4

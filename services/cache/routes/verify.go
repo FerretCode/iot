@@ -7,41 +7,41 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"os"
 
-	"github.com/ferretcode/iot/services/user/routes"
+	"github.com/lib/pq"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
-var ErrNotFound = errors.New("the user was not found in the cache")
-
-type VerifyRequest struct {
-	ApiKey string `json:"api_key"`
+// actually just a wrapper for the real IotUser
+type IotUser struct {
+	Username string `json:"username"`
+	ApiKeys pq.StringArray `json:"api_keys" gorm:"type:text[]"`
+	DataPoints pq.StringArray `json:"data_points" gorm:"type:text[]"`
+	Teams pq.StringArray `json:"teams" gorm:"type:text[]"`
 }
 
+type ApiKey struct {
+	Id       uint   `json:"id"`
+	Username string `json:"username"`
+	Name     string `json:"name" gorm:"primaryKey"`
+	Hash     string `json:"hash"`
+}
+
+var ErrNotFound = errors.New("the user was not found in the cache")
+
 func Verify(w http.ResponseWriter, r *http.Request, db gorm.DB) error {
-	bytes, err := io.ReadAll(r.Body)
+	apiKey := r.Header.Get("Authorization")
 
-	if err != nil {
-		return err
-	}
-
-	verifyRequest := VerifyRequest{}
-
-	if err := json.Unmarshal(bytes, &verifyRequest); err != nil {
-		return err
-	}
-
-	hash := sha256.Sum256([]byte(verifyRequest.ApiKey))
+	hash := sha256.Sum256([]byte(apiKey))
 
 	encoded := base64.StdEncoding.EncodeToString(hash[:])
 
-	key := routes.ApiKey{}
+	key := ApiKey{}
 
-	err = db.Where("hash = ?", encoded).First(&key).Error	
+	err := db.Where("hash = ?", encoded).First(&key).Error	
 
 	if err != nil {
 		return err
@@ -61,7 +61,7 @@ func Verify(w http.ResponseWriter, r *http.Request, db gorm.DB) error {
 	result, err := rdb.Get(ctx, key.Username).Result()
 
 	if err == redis.Nil {
-		user := routes.IotUser{}
+		user := IotUser{}
 
 		err = db.Where("username = ?", key.Username).First(&user).Error
 
@@ -91,9 +91,9 @@ func Verify(w http.ResponseWriter, r *http.Request, db gorm.DB) error {
 		return err
 	}
 
-	iotUser := routes.IotUser{}
+	userResponseWrapper := IotUser{}
 
-	if err := json.Unmarshal([]byte(result), &iotUser); err != nil {
+	if err := json.Unmarshal([]byte(result), &userResponseWrapper); err != nil {
 		return err
 	}
 

@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
@@ -52,6 +51,21 @@ func NewApiKey(w http.ResponseWriter, r *http.Request, db gorm.DB) error {
 		return err
 	}
 
+	existingKey := ApiKey{}
+
+	err = db.Where("name = ?", user.Name).First(&existingKey).Error
+
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+
+	if existingKey.Name != "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("This API key already exists!"))
+
+		return nil
+	}
+
 	hash := sha256.Sum256([]byte(user.Password))
 
 	encoded := base64.StdEncoding.EncodeToString(hash[:])
@@ -63,9 +77,9 @@ func NewApiKey(w http.ResponseWriter, r *http.Request, db gorm.DB) error {
 		return nil
 	} 
 
-	apiKeyBytes := make([]byte, 32); rand.Read(apiKeyBytes)
+	apiKeyContent := uuid.NewString()
 
-	key := fmt.Sprintf("iot_%s", apiKeyBytes)
+	key := fmt.Sprintf("iot_%s", string(apiKeyContent))
 
 	apiKeyHash := sha256.Sum256([]byte(key))
 
