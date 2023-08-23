@@ -25,6 +25,8 @@ func CheckAPIKey(db gorm.DB, proxyHost string, proxyPort string) func(next http.
 			req.Header.Set("Authorization", apiKey)
 
 			if err != nil {
+				fmt.Println("err creating req")
+
 				HandleError(w, r, err)
 
 				return
@@ -33,6 +35,8 @@ func CheckAPIKey(db gorm.DB, proxyHost string, proxyPort string) func(next http.
 			res, err := http.DefaultClient.Do(req)
 
 			if err != nil {
+				fmt.Println("err sending req")
+
 				HandleError(w, r, err)
 
 				return
@@ -41,6 +45,8 @@ func CheckAPIKey(db gorm.DB, proxyHost string, proxyPort string) func(next http.
 			bytes, err := io.ReadAll(res.Body)
 
 			if err != nil {
+				fmt.Println("error reading body")
+
 				HandleError(w, r, err)
 
 				return
@@ -51,6 +57,8 @@ func CheckAPIKey(db gorm.DB, proxyHost string, proxyPort string) func(next http.
 			user := routes.IotUser{}
 
 			if err := json.Unmarshal(bytes, &user); err != nil {
+				fmt.Println("error unmarshaling")
+
 				HandleError(w, r, err)
 
 				return
